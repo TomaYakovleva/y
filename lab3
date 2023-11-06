@@ -1,0 +1,131 @@
+#include <iostream>
+
+using namespace std;
+
+long long c[65536];
+long long c1[65536];
+
+void m(int b, int e, int mid)      //сортировка слиянием
+{
+    int x1 = b, x2 = mid + 1;
+    for (int i = b; i <= e; ++i)
+    {
+        if (x1 == mid + 1 || c[x1] > c[x2])
+        {
+            c1[i] = c[x2];
+            x2++;
+        }
+        else
+        {
+            c1[i] = c[x1];
+            x1++;
+        }
+    }
+    for (int i = b; i <= e; ++i)
+    {
+        c[i] = c1[i];
+    }
+}
+
+void msort(int b, int e)  //b - начало подмассива в c, e - конец подмассива, mid - середина
+{
+    int mid;
+    if (b < e)
+    {
+        mid = (b + e) / 2;
+        msort(b, mid);
+        msort(mid + 1, e);
+        m(b, e, mid);
+    }
+}
+
+int mod(int x)
+{
+    if (x >= 0)
+    {
+        return x;
+    }
+    return -x;
+}
+
+int main()
+{
+    int n;
+    cin >> n;
+    if (n == 1)
+    {
+        int p;
+        cin >> p;
+        cout << p;
+        return 0;
+    }
+    int s1 = (n + 1) / 2, s2 = n - s1;
+    int a[32];                        //первая половина массива
+    int b[32];                        //вторая половина массива
+    for (int i = 0; i < s1; ++i)
+    {
+        cin >> a[i];
+    }
+    for (int i = 0; i < s2; ++i)
+    {
+        cin >> b[i];
+    }
+    int t1 = 1 << s1, t2 = 1 << s2;
+    long long d[65536];
+    for (int i = 0; i < t1; ++i)
+    {
+        int u = i;
+        c[i] = 0;
+        for (int j = 0; j < s1; ++j)
+        {
+            c[i] += (u % 2) * a[j];
+            u /= 2;
+        }
+    }
+    for (int i = 0; i < t2; ++i)
+    {
+        int u = i;
+        d[i] = 0;
+        for (int j = 0; j < s2; ++j)
+        {
+            d[i] += (u % 2) * b[j];
+            u /= 2;
+        }
+    }
+    msort(0, t1 - 1);              //сортируем массив сортировкой слиянием
+    long long sum = 0;
+    for (int i = 0; i < s1; ++i)
+    {
+        sum += a[i];
+    }
+    for (int i = 0; i < s2; ++i)
+    {
+        sum += b[i];
+    }
+    long long res = 1e18;
+    for (int i = 0; i < t2; ++i)
+    {
+        int l = 0, r = t1, mid;
+        while (r - l > 1)               //бинарный поиск
+        {
+            mid = (l + r) / 2;
+            if ((d[i] + c[mid]) - (sum - d[i] - c[mid]) <= 0)
+            {
+                l = mid;
+            }
+            else
+            {
+                r = mid;
+            }
+        }
+        if (mod((d[i] + c[l]) - (sum - d[i] - c[l])) < res)
+        {
+            res = mod((d[i] + c[l]) - (sum - d[i] - c[l]));
+        }
+        if (r < t1 && (d[i] + c[r]) - (sum - d[i] - c[r]) < res)
+        {
+            res = (d[i] + c[r]) - (sum - d[i] - c[r]);
+        }
+    }
+    cout << res;
+}
