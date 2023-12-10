@@ -1,0 +1,387 @@
+#include <iostream>
+
+using namespace std;
+long long a[6][2];
+char d[10000][100];
+long long s[10000];
+
+class Language
+{
+public:
+    char name[100];
+    long long k;
+    int l;
+    long long n;
+    static long long c;
+    static long long sumn;
+    static int x;
+    Language()
+    {
+        k = 0;
+        l = 0;
+        n = 0;
+    }
+    Language(const char *_name, long long _k, int _l, long long _n)
+    {
+        for (int i = 0; i < 100; ++i)
+        {
+            name[i] = _name[i];
+        }
+        k = _k;
+        l = _l;
+        n = _n;
+        Language::c++;
+        Language::sumn += n;
+        a[l][0]++;
+        a[l][1] += k;
+        if (_n == 0)
+        {
+            s[Language::x] = k;
+            for (int i = 0; i < 100; ++i)
+            {
+                d[Language::x][i] = name[i];
+            }
+            Language::x++;
+        }
+    }
+    Language(const Language &L)
+    {
+        for (int i = 0; i < 100; ++i)
+        {
+            name[i] = L.name[i];
+        }
+        k = L.k;
+        l = L.l;
+        n = L.n;
+        Language::c++;
+        Language::sumn += n;
+        a[l][0]++;
+        a[l][1] += k;
+        if (n == 0)
+        {
+            s[Language::x] = k;
+            for (int i = 0; i < 100; ++i)
+            {
+                d[Language::x][i] = name[i];
+            }
+            Language::x++;
+        }
+    }
+    ~Language()
+    {
+        Language::c--;
+        Language::sumn -= n;
+        a[l][0]--;
+        a[l][1] -= k;
+        if (n == 0)
+        {
+            int q;
+            for (int i = 0; i < Language::x; ++i)
+            {
+                q = 1;
+                for (int j = 0; j < 100; j++)
+                {
+                    if (d[i][j] != name[j])
+                    {
+                        q = 0;
+                        break;
+                    }
+                }
+                if (q == 1)
+                {
+                    q = i;
+                    break;
+                }
+            }
+            for (int i = q + 1; i < Language::x; ++i)
+            {
+                s[k - 1] = s[k];
+                for (int j = 0; j < 100; j++)
+                {
+                    d[i - 1][j] = d[i][j];
+                }
+            }
+            Language::x--;
+            s[Language::x] = 1000000000000000000;
+            for (int j = 0; j < 100; j++)
+            {
+                d[Language::x][j] = 0;
+            }
+        }
+    }
+    void print()
+    {
+        cout << name << endl;
+        cout << "Word stock:" << k << endl;
+        cout << "Difficulty:" << l << endl;
+        cout << "Number of native speakers:" << n << endl;
+    }
+
+    void print_name()
+    {
+        cout << name << endl;
+    }
+
+    void print_k()
+    {
+        cout << k << endl;
+    }
+
+    void print_l()
+    {
+        cout << l << endl;
+    }
+
+    void print_n()
+    {
+        cout << n << endl;
+    }
+};
+
+long long Language::c = 0;
+long long Language::sumn = 0;
+int Language::x = 0;
+
+void f1()
+{
+    char q[100];
+    int y;
+    int u;
+    for (int i = 0; i < Language::x; ++i)
+    {
+        u = i;
+        for (int j = i + 1; j < Language::x; ++j)
+        {
+            if (s[u] > s[j])
+            {
+                u = j;
+            }
+        }
+        y = s[i];
+        s[i] = s[u];
+        s[u] = y;
+        for (int j = 0; j < 100; ++j)
+        {
+            q[j] = d[i][j];
+        }
+        for (int j = 0; j < 100; ++j)
+        {
+            d[i][j] = d[u][j];
+        }
+        for (int j = 0; j < 100; ++j)
+        {
+            d[u][j] = q[j];
+        }
+    }
+    for (int i = 0; i < Language::x; ++i)
+    {
+        cout << d[i] << endl;
+    }
+}
+
+void f2()
+{
+    if (Language::c == 0)
+    {
+        cout << "Error";
+        exit(0);
+    }
+    double u = (1.0 * Language::sumn) / (1.0 * Language::c);
+    printf("%0.8f\n", u);
+}
+
+void f3(int l)
+{
+    if (a[l][0] == 0)
+    {
+        cout << "Error";
+        exit(0);
+    }
+    double u = (1.0 * a[l][1]) / (1.0 * a[l][0]);
+    printf("%0.8f\n", u);
+}
+
+/*
+A
+100000
+3
+0
+B
+1000
+3
+100
+C
+50000
+4
+0
+D
+2000
+1
+50000
+E
+200000
+3
+0
+
+
+A
+1234
+3
+0
+B
+1236
+3
+10
+
+
+A
+1234
+3
+0
+Rty
+*/
+
+void red_name(const char *name1, Language &a)
+{
+    if (a.n == 0)
+    {
+        int q;
+        for (int i = 0; i < Language::x; ++i)
+        {
+            q = 1;
+            for (int j = 0; j < 100; j++)
+            {
+                if (d[i][j] != a.name[j])
+                {
+                    q = 0;
+                    break;
+                }
+            }
+            if (q == 1)
+            {
+                q = i;
+                break;
+            }
+        }
+        for (int i = 0; i < 100; ++i)
+        {
+            d[q][i] = name1[i];
+        }
+    }
+    for (int i = 0; i < 100; ++i)
+    {
+        a.name[i] = name1[i];
+    }
+}
+
+void red_k(long long k, Language &b)
+{
+    if (b.n == 0)
+    {
+        int q;
+        for (int i = 0; i < Language::x; ++i)
+        {
+            q = 1;
+            for (int j = 0; j < 100; j++)
+            {
+                if (d[i][j] != b.name[j])
+                {
+                    q = 0;
+                    break;
+                }
+            }
+            if (q == 1)
+            {
+                q = i;
+                break;
+            }
+        }
+        s[q] = k;
+    }
+    a[b.l][1] -= b.k;
+    b.k = k;
+    a[b.l][1] += b.k;
+}
+
+void red_l(int l, Language &b)
+{
+    a[b.l][0]--;
+    a[b.l][1] -= b.k;
+    b.l = l;
+    a[b.l][0]++;
+    a[b.l][1] += b.k;
+}
+
+void red_n(long long n, Language &a)
+{
+    if (a.n == 0)
+    {
+        int q;
+        for (int i = 0; i < Language::x; ++i)
+        {
+            q = 1;
+            for (int j = 0; j < 100; j++)
+            {
+                if (d[i][j] != a.name[j])
+                {
+                    q = 0;
+                    break;
+                }
+            }
+            if (q == 1)
+            {
+                q = i;
+                break;
+            }
+        }
+        for (int i = q + 1; i < Language::x; ++i)
+        {
+            s[a.k - 1] = s[a.k];
+            for (int j = 0; j < 100; j++)
+            {
+                d[i - 1][j] = d[i][j];
+            }
+        }
+        Language::x--;
+        s[Language::x] = 1000000000000000000;
+        for (int j = 0; j < 100; j++)
+        {
+            d[Language::x][j] = 0;
+        }
+    }
+    Language::sumn -= a.n;
+    a.n = n;
+    Language::sumn += a.n;
+}
+
+int main()
+{
+    char u1[100];
+    long long u2, u4;
+    int u3;
+    cin >> u1 >> u2 >> u3 >> u4;
+    Language a{u1, u2, u3, u4};
+    cin >> u1 >> u2 >> u3 >> u4;
+    Language b{u1, u2, u3, u4};
+    cin >> u1 >> u2 >> u3 >> u4;
+    Language c{u1, u2, u3, u4};
+    cin >> u1 >> u2 >> u3 >> u4;
+    Language d{u1, u2, u3, u4};
+    cin >> u1 >> u2 >> u3 >> u4;
+    Language e{u1, u2, u3, u4};
+    Language f = a;
+    f.print();
+    red_k(300000, f);
+    red_l(5, f);
+    cin >> u1;
+    red_name(u1, f);
+    f.print();
+    f1();
+    f2();
+    f3(3);
+    f3(5);
+    a.print_name();
+    a.print_k();
+    a.print_l();
+    a.print_n();
+}
